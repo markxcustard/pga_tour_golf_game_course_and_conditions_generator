@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golf Course Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .center-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+        }
+        .bold-text {
+            font-weight: bold;
+        }
+        .accordion-item {
+            border-bottom: 1px solid #ddd;
+        }
+        .accordion-header {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #f1f1f1;
+        }
+        .accordion-content {
+            display: none;
+            padding: 10px;
+            background-color: white;
+        }
+        .accordion-content.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <header class="bg-green-600 p-4 text-white text-center">
+        <h1 class="text-2xl">Golf Course Generator</h1>
+        <button id="generateButton" class="mt-4 bg-white text-green-600 px-4 py-2 rounded">Generate New Course</button>
+        <button id="showLast25Button" class="mt-4 bg-white text-green-600 px-4 py-2 rounded">Show Last 25 Results</button>
+    </header>
+
+    <main class="center-wrapper">
+        <div id="courseGrid" class="bg-green-200 p-4 rounded shadow w-full max-w-3xl">
+            <!-- Course details will be displayed here -->
+        </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

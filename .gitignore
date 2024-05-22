@@ -1,24 +1,22 @@
-# Ignore Python bytecode
-*.py[cod]
-__pycache__/
-
 # Ignore virtual environment
 venv/
-ENV/
-
-# Ignore pytest cache
-.pytest_cache/
-
-# Ignore database files
-*.db
-
-# Ignore static and template directories
-static/
-templates/
-
-# Ignore logs
-*.log
+__pycache__/
 
 # Ignore OS generated files
 .DS_Store
 Thumbs.db
+
+# Ignore logs
+*.log
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore specific files with secrets
+secrets.py
+
+# Exclude specific files/directories while keeping others
+!static/
+!templates/
+!static/app.js
+!templates/index.html
