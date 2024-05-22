@@ -7,6 +7,10 @@ import traceback
 app = Flask(__name__)
 CORS(app)
 
+def get_db_connection():
+    conn = sqlite3.connect(app.config['DATABASE'])
+    return conn
+
 @app.route('/')
 def index():
     return send_from_directory('templates', 'index.html')
@@ -32,7 +36,7 @@ def generate_course():
         course_info = game.generate_course_info()
         
         # Save the generated course info to the database
-        conn = sqlite3.connect('golf_course_results.db')
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS results (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +66,7 @@ def generate_course():
 @app.route('/results', methods=['GET'])
 def get_results():
     try:
-        conn = sqlite3.connect('golf_course_results.db')
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('SELECT course, crowd, time_of_day, tee, pin, wind_direction, wind_speed, green_firmness, green_speed, fringe_firmness, fringe_speed, fairway_firmness, fairway_speed, first_cut_firmness, first_cut_length, second_cut_firmness, second_cut_length, timestamp FROM results ORDER BY timestamp DESC LIMIT 25')
         results = cursor.fetchall()
@@ -80,4 +84,5 @@ def get_results():
         return jsonify({"error": "An error occurred while fetching the results."}), 500
 
 if __name__ == '__main__':
+    app.config['DATABASE'] = 'golf_course_results.db'
     app.run(debug=True)
