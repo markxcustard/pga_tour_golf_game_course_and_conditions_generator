@@ -1,97 +1,83 @@
-from flask import Flask, jsonify, render_template
-from sqlalchemy.orm import sessionmaker
-from models import GolfCourseResult, engine
-from golf_game_generator import GolfGame
-from datetime import datetime
-import pytz
+from flask import Flask, send_from_directory, jsonify, request
+from flask_cors import CORS
+import sqlite3
+from golf_game import GolfGame
+import traceback
 
 app = Flask(__name__)
-
-# Set up the session
-Session = sessionmaker(bind=engine)
-session = Session()
+CORS(app)
 
 @app.route('/')
-def home():
-    return render_template('index.html')
+def index():
+    return send_from_directory('templates', 'index.html')
 
-@app.route('/generate', methods=['GET'])
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory('static', 'favicon.ico')
+
+@app.route('/generate_course', methods=['GET'])
 def generate_course():
-    courses = [
-        'Augusta', 'Bandon Dunes', 'Banff Springs', 'Bay Hill', 'Chambers Bay',
-        'East Lake', 'Evian Resort', 'Harbour Town', 'Liberty National', 'Marco Simone',
-        'Oak Hill', 'Olympia Fields', 'Pebble Beach', 'PGA West', 'Pinehurst No.2',
-        'Quail Hallow', 'Royal Liverpool', 'Royal Troon', 'Southern Hills', 'St. Andrews',
-        'Tara Iti', 'Teeth of the Dog', 'The Country Club', 'The LA Country Club',
-        'The Ocean Course', 'The Riviera Country Club', 'Torrey Pines', 'TPC Boston',
-        'TPC Sawgrass', 'TPC Scottsdale', 'TPC Southwind', 'Valhalla', 'Whistling Straights',
-        'Wilmington Country Club', 'Wolf Creek'
-    ]
+    try:
+        courses = [
+            'Augusta', 'Bandon Dunes', 'Banff Springs', 'Bay Hill', 'Chambers Bay',
+            'East Lake', 'Evian Resort', 'Harbour Town', 'Liberty National', 'Marco Simone',
+            'Oak Hill', 'Olympia Fields', 'Pebble Beach', 'PGA West', 'Pinehurst No.2',
+            'Quail Hallow', 'Royal Liverpool', 'Royal Troon', 'Southern Hills', 'St. Andrews',
+            'Tara Iti', 'Teeth of the Dog', 'The Country Club', 'The LA Country Club',
+            'The Ocean Course', 'The Riviera Country Club', 'Torrey Pines', 'TPC Boston',
+            'TPC Sawgrass', 'TPC Scottsdale', 'TPC Southwind', 'Valhalla', 'Whistling Straights',
+            'Wilmington Country Club', 'Wolf Creek'
+        ]
+        game = GolfGame(courses)
+        course_info = game.generate_course_info()
+        
+        # Save the generated course info to the database
+        conn = sqlite3.connect('golf_course_results.db')
+        cursor = conn.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS results (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            course TEXT, crowd TEXT, time_of_day TEXT, tee TEXT, pin TEXT,
+                            wind_direction TEXT, wind_speed TEXT, green_firmness TEXT,
+                            green_speed TEXT, fringe_firmness TEXT, fringe_speed TEXT,
+                            fairway_firmness TEXT, fairway_speed TEXT, first_cut_firmness TEXT,
+                            first_cut_length TEXT, second_cut_firmness TEXT, second_cut_length TEXT,
+                            timestamp TEXT)''')
+        cursor.execute('''INSERT INTO results (course, crowd, time_of_day, tee, pin, wind_direction, wind_speed, green_firmness, green_speed, fringe_firmness, fringe_speed, fairway_firmness, fairway_speed, first_cut_firmness, first_cut_length, second_cut_firmness, second_cut_length, timestamp)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                       (course_info["course"], course_info["crowd"], course_info["time_of_day"],
+                        course_info["tee"], course_info["pin"], course_info["wind_direction"],
+                        course_info["wind_speed"], course_info["green_firmness"], course_info["green_speed"],
+                        course_info["fringe_firmness"], course_info["fringe_speed"], course_info["fairway_firmness"],
+                        course_info["fairway_speed"], course_info["first_cut_firmness"], course_info["first_cut_length"],
+                        course_info["second_cut_firmness"], course_info["second_cut_length"], course_info["timestamp"]))
+        conn.commit()
+        conn.close()
+        
+        return jsonify(course_info)
+    except Exception as e:
+        print("Error generating course:", e)
+        print(traceback.format_exc())
+        return jsonify({"error": "An error occurred while generating the course."}), 500
 
-    game = GolfGame(courses)
-    course_info = game.generate_course_info()
-
-    # Save the result to the database
-    result = GolfCourseResult(
-        course=course_info["course"],
-        crowd=course_info["crowd"],
-        time_of_day=course_info["time_of_day"],
-        tee=course_info["tee"],
-        pin=course_info["pin"],
-        wind_direction=course_info["wind_direction"],
-        wind_speed=course_info["wind_speed"],
-        green_firmness=course_info["green_firmness"],
-        green_speed=course_info["green_speed"],
-        fringe_firmness=course_info["fringe_firmness"],
-        fringe_speed=course_info["fringe_speed"],
-        fairway_firmness=course_info["fairway_firmness"],
-        fairway_speed=course_info["fairway_speed"],
-        first_cut_firmness=course_info["first_cut_firmness"],
-        first_cut_length=course_info["first_cut_length"],
-        second_cut_firmness=course_info["second_cut_firmness"],
-        second_cut_length=course_info["second_cut_length"],
-        timestamp=course_info["timestamp"]  # Store the timestamp as a string
-    )
-    session.add(result)
-    session.commit()
-
-    # Keep only the last 25 results
-    results_count = session.query(GolfCourseResult).count()
-    if results_count > 25:
-        oldest_result = session.query(GolfCourseResult).order_by(GolfCourseResult.id).first()
-        session.delete(oldest_result)
-        session.commit()
-
-    return jsonify(course_info)
-
-@app.route('/last_25', methods=['GET'])
-def get_last_25_results():
-    results = session.query(GolfCourseResult).order_by(GolfCourseResult.id.desc()).limit(25).all()
-    results_data = [
-        {
-            "course": result.course,
-            "crowd": result.crowd,
-            "time_of_day": result.time_of_day,
-            "tee": result.tee,
-            "pin": result.pin,
-            "wind_direction": result.wind_direction,
-            "wind_speed": result.wind_speed,
-            "green_firmness": result.green_firmness,
-            "green_speed": result.green_speed,
-            "fringe_firmness": result.fringe_firmness,
-            "fringe_speed": result.fringe_speed,
-            "fairway_firmness": result.fairway_firmness,
-            "fairway_speed": result.fairway_speed,
-            "first_cut_firmness": result.first_cut_firmness,
-            "first_cut_length": result.first_cut_length,
-            "second_cut_firmness": result.second_cut_firmness,
-            "second_cut_length": result.second_cut_length,
-            "timestamp": result.timestamp  # Directly use the stored timestamp string
-        }
-        for result in results
-    ]
-    return jsonify(results_data)
+@app.route('/results', methods=['GET'])
+def get_results():
+    try:
+        conn = sqlite3.connect('golf_course_results.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT course, crowd, time_of_day, tee, pin, wind_direction, wind_speed, green_firmness, green_speed, fringe_firmness, fringe_speed, fairway_firmness, fairway_speed, first_cut_firmness, first_cut_length, second_cut_firmness, second_cut_length, timestamp FROM results ORDER BY timestamp DESC LIMIT 25')
+        results = cursor.fetchall()
+        conn.close()
+        
+        keys = ['course', 'crowd', 'time_of_day', 'tee', 'pin', 'wind_direction', 'wind_speed', 'green_firmness', 
+                'green_speed', 'fringe_firmness', 'fringe_speed', 'fairway_firmness', 'fairway_speed', 
+                'first_cut_firmness', 'first_cut_length', 'second_cut_firmness', 'second_cut_length', 'timestamp']
+        results_dicts = [dict(zip(keys, result)) for result in results]
+        
+        return jsonify(results_dicts)
+    except Exception as e:
+        print("Error fetching results:", e)
+        print(traceback.format_exc())
+        return jsonify({"error": "An error occurred while fetching the results."}), 500
 
 if __name__ == '__main__':
-    print("Starting Flask application...")
     app.run(debug=True)

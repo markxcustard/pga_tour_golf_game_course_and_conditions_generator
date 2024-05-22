@@ -1,98 +1,94 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const generateButton = document.getElementById('generateButton');
-    const showLast25Button = document.getElementById('showLast25Button');
+document.getElementById('generateButton').addEventListener('click', generateCourse);
+document.getElementById('showLast25Button').addEventListener('click', showLast25Results);
+
+function generateCourse() {
+    fetch('/generate_course')
+        .then(response => response.json())
+        .then(data => {
+            displayCourse(data);
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function showLast25Results() {
+    fetch('/results')
+        .then(response => response.json())
+        .then(data => {
+            displayResults(data);
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function displayCourse(course) {
     const courseGrid = document.getElementById('courseGrid');
+    courseGrid.innerHTML = `
+        <p><span class="bold-text">Course generated on:</span> ${course.timestamp}</p>
+        <p><span class="bold-text">Course:</span> ${course.course}</p>
+        <p><span class="bold-text">Crowd:</span> ${course.crowd}</p>
+        <p><span class="bold-text">Time of Day:</span> ${course.time_of_day}</p>
+        <p><span class="bold-text">Tee:</span> ${course.tee}</p>
+        <p><span class="bold-text">Pin:</span> ${course.pin}</p>
+        <p><span class="bold-text">Wind Direction:</span> ${course.wind_direction}</p>
+        <p><span class="bold-text">Wind Speed:</span> ${course.wind_speed}</p>
+        <p><span class="bold-text">Green Firmness:</span> ${course.green_firmness}</p>
+        <p><span class="bold-text">Green Speed:</span> ${course.green_speed}</p>
+        <p><span class="bold-text">Fringe Firmness:</span> ${course.fringe_firmness}</p>
+        <p><span class="bold-text">Fringe Speed:</span> ${course.fringe_speed}</p>
+        <p><span class="bold-text">Fairway Firmness:</span> ${course.fairway_firmness}</p>
+        <p><span class="bold-text">Fairway Speed:</span> ${course.fairway_speed}</p>
+        <p><span class="bold-text">First Cut Firmness:</span> ${course.first_cut_firmness}</p>
+        <p><span class="bold-text">First Cut Length:</span> ${course.first_cut_length}</p>
+        <p><span class="bold-text">Second Cut Firmness:</span> ${course.second_cut_firmness}</p>
+        <p><span class="bold-text">Second Cut Length:</span> ${course.second_cut_length}</p>
+    `;
+}
 
-    generateButton.addEventListener('click', generateCourse);
-    showLast25Button.addEventListener('click', showLast25Results);
+function displayResults(results) {
+    const courseGrid = document.getElementById('courseGrid');
+    courseGrid.innerHTML = '';
 
-    async function generateCourse() {
-        try {
-            const response = await fetch('/generate');
-            const courseData = await response.json();
-            displayCourse(courseData);
-        } catch (error) {
-            console.error("Error fetching course data:", error);
-        }
-    }
+    results.forEach(result => {
+        const item = document.createElement('div');
+        item.classList.add('accordion-item');
 
-    async function showLast25Results() {
-        try {
-            const response = await fetch('/last_25');
-            const results = await response.json();
-            displayLast25Results(results);
-        } catch (error) {
-            console.error("Error fetching last 25 results:", error);
-        }
-    }
+        const header = document.createElement('div');
+        header.classList.add('accordion-header', 'tooltip');
+        header.textContent = `Course generated on: ${result.timestamp}`;
 
-    function displayCourse(courseData) {
-        courseGrid.innerHTML = '';
-        const courseInfo = `
-            <div class="bold-text">
-                <p>Course: ${courseData.course}</p>
-                <p>Crowd: ${courseData.crowd}</p>
-                <p>Time of Day: ${courseData.time_of_day}</p>
-                <p>Tee: ${courseData.tee}</p>
-                <p>Pin: ${courseData.pin}</p>
-                <p>Wind Speed: ${courseData.wind_speed}</p>
-                <p>Wind Direction: ${courseData.wind_direction}</p>
-                <p>Green Firmness: ${courseData.green_firmness}</p>
-                <p>Green Speed: ${courseData.green_speed}</p>
-                <p>Fringe Firmness: ${courseData.fringe_firmness}</p>
-                <p>Fringe Speed: ${courseData.fringe_speed}</p>
-                <p>Fairway Firmness: ${courseData.fairway_firmness}</p>
-                <p>Fairway Speed: ${courseData.fairway_speed}</p>
-                <p>First Cut Firmness: ${courseData.first_cut_firmness}</p>
-                <p>First Cut Length: ${courseData.first_cut_length}</p>
-                <p>Second Cut Firmness: ${courseData.second_cut_firmness}</p>
-                <p>Second Cut Length: ${courseData.second_cut_length}</p>
-                <p>Timestamp: ${courseData.timestamp}</p>
-            </div>
+        const tooltipText = document.createElement('span');
+        tooltipText.classList.add('tooltiptext');
+        tooltipText.textContent = "Click to expand!";
+
+        header.appendChild(tooltipText);
+
+        const content = document.createElement('div');
+        content.classList.add('accordion-content');
+        content.innerHTML = `
+            <p><span class="bold-text">Course:</span> ${result.course}</p>
+            <p><span class="bold-text">Crowd:</span> ${result.crowd}</p>
+            <p><span class="bold-text">Time of Day:</span> ${result.time_of_day}</p>
+            <p><span class="bold-text">Tee:</span> ${result.tee}</p>
+            <p><span class="bold-text">Pin:</span> ${result.pin}</p>
+            <p><span class="bold-text">Wind Direction:</span> ${result.wind_direction}</p>
+            <p><span class="bold-text">Wind Speed:</span> ${result.wind_speed}</p>
+            <p><span class="bold-text">Green Firmness:</span> ${result.green_firmness}</p>
+            <p><span class="bold-text">Green Speed:</span> ${result.green_speed}</p>
+            <p><span class="bold-text">Fringe Firmness:</span> ${result.fringe_firmness}</p>
+            <p><span class="bold-text">Fringe Speed:</span> ${result.fringe_speed}</p>
+            <p><span class="bold-text">Fairway Firmness:</span> ${result.fairway_firmness}</p>
+            <p><span class="bold-text">Fairway Speed:</span> ${result.fairway_speed}</p>
+            <p><span class="bold-text">First Cut Firmness:</span> ${result.first_cut_firmness}</p>
+            <p><span class="bold-text">First Cut Length:</span> ${result.first_cut_length}</p>
+            <p><span class="bold-text">Second Cut Firmness:</span> ${result.second_cut_firmness}</p>
+            <p><span class="bold-text">Second Cut Length:</span> ${result.second_cut_length}</p>
         `;
-        courseGrid.innerHTML = courseInfo;
-    }
 
-    function displayLast25Results(results) {
-        courseGrid.innerHTML = '';
-        results.forEach((courseData, index) => {
-            const courseInfo = `
-                <div class="accordion-item">
-                    <div class="accordion-header bold-text" title="Click to expand" onclick="toggleAccordion(${index})">
-                        Course generated on: ${courseData.timestamp}
-                    </div>
-                    <div id="accordion-content-${index}" class="accordion-content">
-                        <p>Course: ${courseData.course}</p>
-                        <p>Crowd: ${courseData.crowd}</p>
-                        <p>Time of Day: ${courseData.time_of_day}</p>
-                        <p>Tee: ${courseData.tee}</p>
-                        <p>Pin: ${courseData.pin}</p>
-                        <p>Wind Speed: ${courseData.wind_speed}</p>
-                        <p>Wind Direction: ${courseData.wind_direction}</p>
-                        <p>Green Firmness: ${courseData.green_firmness}</p>
-                        <p>Green Speed: ${courseData.green_speed}</p>
-                        <p>Fringe Firmness: ${courseData.fringe_firmness}</p>
-                        <p>Fringe Speed: ${courseData.fringe_speed}</p>
-                        <p>Fairway Firmness: ${courseData.fairway_firmness}</p>
-                        <p>Fairway Speed: ${courseData.fairway_speed}</p>
-                        <p>First Cut Firmness: ${courseData.first_cut_firmness}</p>
-                        <p>First Cut Length: ${courseData.first_cut_length}</p>
-                        <p>Second Cut Firmness: ${courseData.second_cut_firmness}</p>
-                        <p>Second Cut Length: ${courseData.second_cut_length}</p>
-                        <p>Timestamp: ${courseData.timestamp}</p>
-                    </div>
-                </div>
-            `;
-            courseGrid.innerHTML += courseInfo;
+        header.addEventListener('click', () => {
+            content.classList.toggle('show');
         });
-    }
 
-    window.toggleAccordion = function(index) {
-        const content = document.getElementById(`accordion-content-${index}`);
-        if (content.classList.contains('show')) {
-            content.classList.remove('show');
-        } else {
-            content.classList.add('show');
-        }
-    };
-});
+        item.appendChild(header);
+        item.appendChild(content);
+        courseGrid.appendChild(item);
+    });
+}

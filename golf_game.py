@@ -19,7 +19,6 @@ class GolfGame:
         first_cut_firmness, first_cut_length = self.generate_condition(True)
         second_cut_firmness, second_cut_length = self.generate_condition(True)
         
-        # Set the timezone to PST/PDT
         pacific = pytz.timezone('America/Los_Angeles')
         timestamp = datetime.now(pacific).strftime("%a, %d %b %Y %H:%M:%S %Z")
 
@@ -41,7 +40,7 @@ class GolfGame:
             "first_cut_length": first_cut_length,
             "second_cut_firmness": second_cut_firmness,
             "second_cut_length": second_cut_length,
-            "timestamp": timestamp  # Ensure this is a formatted datetime string in PST/PDT
+            "timestamp": timestamp
         }
 
     def generate_crowd(self):
