@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 
 class GolfGame:
     def __init__(self, courses):
@@ -79,6 +80,9 @@ def print_course_info(course_info):
     print("First Cut Length:".ljust(20), course_info[12])
     print("Second Cut Firmness:".ljust(20), course_info[13])
     print("Second Cut Length:".ljust(20), course_info[14])
+    # Print current PST timestamp
+    pst_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S PST")
+    print("Timestamp:".ljust(20), pst_time)
 
 
 def main():
