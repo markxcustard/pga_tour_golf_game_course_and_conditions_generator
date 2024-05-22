@@ -21,7 +21,7 @@ def generate_course():
         'Augusta', 'Bandon Dunes', 'Banff Springs', 'Bay Hill', 'Chambers Bay',
         'East Lake', 'Evian Resort', 'Harbour Town', 'Liberty National', 'Marco Simone',
         'Oak Hill', 'Olympia Fields', 'Pebble Beach', 'PGA West', 'Pinehurst No.2',
-        'Quail Hallow', 'Royal Liverpool', 'Royal Troon', 'Southern Hiils', 'St. Andrews',
+        'Quail Hallow', 'Royal Liverpool', 'Royal Troon', 'Southern Hills', 'St. Andrews',
         'Tara Iti', 'Teeth of the Dog', 'The Country Club', 'The LA Country Club',
         'The Ocean Course', 'The Riviera Country Club', 'Torrey Pines', 'TPC Boston',
         'TPC Sawgrass', 'TPC Scottsdale', 'TPC Southwind', 'Valhalla', 'Whistling Straights',
