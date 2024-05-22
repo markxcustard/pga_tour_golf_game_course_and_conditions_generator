@@ -1,5 +1,6 @@
-import random
 from datetime import datetime
+import random
+import pytz
 
 class GolfGame:
     def __init__(self, courses):
@@ -18,8 +19,31 @@ class GolfGame:
         first_cut_firmness, first_cut_length = self.generate_condition(True)
         second_cut_firmness, second_cut_length = self.generate_condition(True)
         
-        return course, crowd, tee, pin, wind, green_firmness, green_speed, fringe_firmness, fringe_speed, fairway_firmness, fairway_speed, first_cut_firmness, first_cut_length, second_cut_firmness, second_cut_length, time_of_day
-    
+        # Set the timezone to PST/PDT
+        pacific = pytz.timezone('America/Los_Angeles')
+        timestamp = datetime.now(pacific).strftime("%a, %d %b %Y %H:%M:%S %Z")
+
+        return {
+            "course": course,
+            "crowd": crowd,
+            "time_of_day": time_of_day,
+            "tee": tee,
+            "pin": pin,
+            "wind_direction": wind[0],
+            "wind_speed": wind[1],
+            "green_firmness": green_firmness,
+            "green_speed": green_speed,
+            "fringe_firmness": fringe_firmness,
+            "fringe_speed": fringe_speed,
+            "fairway_firmness": fairway_firmness,
+            "fairway_speed": fairway_speed,
+            "first_cut_firmness": first_cut_firmness,
+            "first_cut_length": first_cut_length,
+            "second_cut_firmness": second_cut_firmness,
+            "second_cut_length": second_cut_length,
+            "timestamp": timestamp  # Ensure this is a formatted datetime string in PST/PDT
+        }
+
     def generate_crowd(self):
         return random.choice(['On', 'Off'])
     
@@ -60,48 +84,3 @@ class GolfGame:
         else:
             speed = random.choice(speed_levels)
             return firmness, speed
-
-def print_course_info(course_info):
-    print("Generated Golf Game Information:")
-    print("Course:".ljust(20), course_info[0])
-    print("Crowd:".ljust(20), course_info[1])
-    print("Time of Day:".ljust(20), course_info[15])
-    print("Tee:".ljust(20), course_info[2])
-    print("Pin:".ljust(20), course_info[3])
-    print("Wind Speed:".ljust(20), course_info[4][1])
-    print("Wind Direction:".ljust(20), course_info[4][0])
-    print("Green Firmness:".ljust(20), course_info[5])
-    print("Green Speed:".ljust(20), course_info[6])
-    print("Fringe Firmness:".ljust(20), course_info[7])
-    print("Fringe Speed:".ljust(20), course_info[8])
-    print("Fairway Firmness:".ljust(20), course_info[9])
-    print("Fairway Speed:".ljust(20), course_info[10])
-    print("First Cut Firmness:".ljust(20), course_info[11])
-    print("First Cut Length:".ljust(20), course_info[12])
-    print("Second Cut Firmness:".ljust(20), course_info[13])
-    print("Second Cut Length:".ljust(20), course_info[14])
-    # Print current PST timestamp
-    pst_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S PST")
-    print("Timestamp:".ljust(20), pst_time)
-
-
-def main():
-    courses = [
-        'Augusta', 'Bandon Dunes', 'Banff Springs', 'Bay Hill', 'Chambers Bay',
-        'East Lake', 'Evian Resort', 'Harbour Town', 'Liberty National', 'Marco Simone',
-        'Oak Hill', 'Olympia Fields', 'Pebble Beach', 'PGA West', 'Pinehurst No.2',
-        'Quail Hallow', 'Royal Liverpool', 'Royal Troon', 'Southern Hiils', 'St. Andrews',
-        'Tara Iti', 'Teeth of the Dog', 'The Country Club', 'The LA Country Club',
-        'The Ocean Course', 'The Riviera Country Club', 'Torrey Pines', 'TPC Boston',
-        'TPC Sawgrass', 'TPC Scottsdale', 'TPC Southwind', 'Valhalla', 'Whistling Straights',
-        'Wilmington Country Club', 'Wolf Creek'
-    ]
-
-    game = GolfGame(courses)
-    course_info = game.generate_course_info()
-
-    print_course_info(course_info)
-
-
-if __name__ == "__main__":
-    main()

@@ -1,41 +1,24 @@
 # Ignore Python bytecode
-__pycache__/
 *.py[cod]
+__pycache__/
 
-# Ignore virtual environment directories
+# Ignore virtual environment
 venv/
-.venv/
 ENV/
-env/
-env.bak/
-venv.bak/
-
-# Ignore IDE specific files
-.idea/
-.vscode/
-*.sublime-project
-*.sublime-workspace
-
-# Ignore OS generated files
-.DS_Store
-Thumbs.db
 
 # Ignore pytest cache
 .pytest_cache/
 
-# Ignore SQLite database files
-*.sqlite3
+# Ignore database files
 *.db
 
-# Ignore static and template files
+# Ignore static and template directories
 static/
 templates/
 
 # Ignore logs
 *.log
 
-# Ignore secrets
-secrets.py
-
-# Ignore dist-info directories
-*.dist-info/
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
